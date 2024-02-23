@@ -4,8 +4,8 @@ import py_midicsv as pm
 def transpose_notes(csv_data, interval):
     transposed_data = []
     for row in csv_data:
-        if row.startswith("Note_on_c") or row.startswith("Note_off_c"):
-            parts = row.split(", ")
+        if "Note_on_c" in row or "Note_off_c" in row:
+            parts = row.strip().split(", ")
             note = int(parts[4])
             transposed_note = max(0, min(127, note + interval))  # Ensure note is within MIDI range
             parts[4] = str(transposed_note)
