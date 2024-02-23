@@ -1,20 +1,46 @@
 import sys
 import py_midicsv as pm
 
-def main():
-    # Check if a MIDI file name was provided as a command-line argument
-    if len(sys.argv) < 2:
-        print("Usage: python midi-csv.py <midi_file_name>")
-        sys.exit(1)
-    
-    midi_file_name = sys.argv[1]
+def transpose_notes(csv_data, interval):
+    transposed_data = []
+    for row in csv_data:
+        if row.startswith("Note_on_c") or row.startswith("Note_off_c"):
+            parts = row.split(", ")
+            note = int(parts[4])
+            transposed_note = max(0, min(127, note + interval))  # Ensure note is within MIDI range
+            parts[4] = str(transposed_note)
+            row = ", ".join(parts)
+        transposed_data.append(row)
+    return transposed_data
 
-    # Load the MIDI file and parse it into CSV format
-    csv_string = pm.midi_to_csv(midi_file_name)
+def midi_to_csv_transpose(midi_file, interval, output_csv):
+    csv_string = pm.midi_to_csv(midi_file)
+    transposed_csv = transpose_notes(csv_string, interval)
+    with open(output_csv, "w") as f:
+        f.writelines(transposed_csv)
 
-    # Save the CSV output to a file
-    with open("example_converted.csv", "w") as f:
-        f.writelines(csv_string)
+def csv_to_midi_transpose(input_csv, interval, output_midi):
+    with open(input_csv, "r") as f:
+        csv_data = f.readlines()
+    transposed_csv = transpose_notes(csv_data, interval)
+    midi_data = pm.csv_to_midi(transposed_csv)
+    with open(output_midi, "wb") as midi_file:
+        midi_file.write(midi_data)
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) < 5:
+        print("Usage: python script.py <mode> <input_file> <semitones> <output_file>")
+        print("<mode> should be 'midi-to-csv' or 'csv-to-midi'")
+        sys.exit(1)
+
+    mode = sys.argv[1]
+    input_file = sys.argv[2]
+    semitones = int(sys.argv[3])
+    output_file = sys.argv[4]
+
+    if mode == "midi-to-csv":
+        midi_to_csv_transpose(input_file, semitones, output_file)
+    elif mode == "csv-to-midi":
+        csv_to_midi_transpose(input_file, semitones, output_file)
+    else:
+        print("Invalid mode. Use 'midi-to-csv' or 'csv-to-midi'.")
