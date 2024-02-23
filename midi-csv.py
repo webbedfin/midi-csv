@@ -29,7 +29,7 @@ def csv_to_midi_transpose(input_csv, interval, output_midi):
 
 if __name__ == "__main__":
     if len(sys.argv) < 5:
-        print("Usage: python script.py <mode> <input_file> <semitones> <output_file>")
+        print("Usage: python mid-csv.py <mode> <input_file> <semitones> <output_file>")
         print("<mode> should be 'midi-to-csv' or 'csv-to-midi'")
         sys.exit(1)
 
