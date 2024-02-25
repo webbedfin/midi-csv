@@ -6,6 +6,7 @@ Can also loopback test .mid to .mid
 2024 Chris Derry
 """
 
+import sys
 import argparse
 import py_midicsv as pm
 
@@ -54,27 +55,26 @@ def midi_loopback(input_midi, output_midi):
     with open(output_midi, "wb", encoding=ENCODING) as midi_file:
         pm.FileWriter(midi_file).write(midi)
 
-def main():
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Converts .mid to .csv or .csv to .mid, with optional pitch transposition.")
-    parser.add_argument('input_type', type=str, help="Type of the input file ('mid', 'csv', 'loop')")
-    parser.add_argument('input_file', type=str, help="Path of the input file")
-    parser.add_argument('semitones', type=int, help="Number of semitones to transpose")
-    parser.add_argument('output_file', type=str, help="Path of the output file")
-    
+    parser.add_argument('conv_mode', type=str,
+                        help="Conversion mode ('mid', 'csv', 'loop')")
+    parser.add_argument('input_file', type=str,
+                        help="Input .mid/.csv file")
+    parser.add_argument('semitones', type=int,
+                        help="Number of semitones to transpose")
+    parser.add_argument('output_file', type=str,
+                        help="Output .csv/.mid file")
     args = parser.parse_args()
-    
-    operations = {"mid": midi_to_csv_transpose,
-                  "csv": csv_to_midi_transpose, 
-                  "loop": midi_loopback}
-    
-    operation = operations.get(args.input_type)
-    
-    if operation is None:
+
+    modes = {"mid": midi_to_csv_transpose,
+             "csv": csv_to_midi_transpose, 
+             "loop": midi_loopback}
+    process = modes.get(args.conv_mode)
+
+    if process is None:
         print("Invalid input type.")
-        return
-    operation(args.input_file, args.semitones, args.output_file)
+        sys.exit(1)
 
-
-if __name__ == "__main__":
-    main()
+    process(args.input_file, args.semitones, args.output_file)
