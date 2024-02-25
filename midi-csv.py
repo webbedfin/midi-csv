@@ -1,3 +1,8 @@
+# midi-csv.py
+# Converts a .mid file to .csv or .csv to .mid, with optional pitch transposition
+#
+# 2024 Chris Derry
+
 import sys
 import py_midicsv as pm
 
@@ -38,7 +43,7 @@ def midi_loopback(midi_file, output_midi):
 if __name__ == "__main__":
     if len(sys.argv) < 5:
         print("Usage: python midi-csv.py <input_type> <input_file> <semitones> <output_file>")
-        print("<input_type> should be 'midi' or 'csv'")
+        print("<input_type> should be 'mid', 'csv' or 'loop' (mid->mid)")
         sys.exit(1)
 
     input_type = sys.argv[1]
@@ -46,11 +51,11 @@ if __name__ == "__main__":
     semitones = int(sys.argv[3])
     output_file = sys.argv[4]
 
-    if input_type == "midi":
+    if input_type == "mid":
         midi_to_csv_transpose(input_file, semitones, output_file)
     elif input_type == "csv":
         csv_to_midi_transpose(input_file, semitones, output_file)
     elif input_type == "loop":
         midi_loopback(input_file, output_file)
     else:
-        print("Invalid input type. Use 'midi' or 'csv'.")
+        print("Invalid input type.")
