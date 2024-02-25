@@ -1,12 +1,22 @@
-# midi-csv.py
-# Converts a .mid file to .csv or .csv to .mid, with optional pitch transposition
-#
-# 2024 Chris Derry
+"""
+midi-csv.py
+Converts a .mid file to .csv or .csv to .mid, with optional pitch transposition
+
+2024 Chris Derry
+"""
 
 import sys
 import py_midicsv as pm
 
+encodings = ["utf-8",
+             "utf-8-sig", 
+             "iso-8859-1", 
+             "latin1", 
+             "cp1252"]
+ENCODING = encodings[0]
+
 def transpose_notes(csv_data, interval):
+    """Transpoke all notes by number of semitones."""
     transposed_data = []
     for row in csv_data:
         if "Note_on_c" in row or "Note_off_c" in row:
@@ -18,27 +28,31 @@ def transpose_notes(csv_data, interval):
         transposed_data.append(row)
     return transposed_data
 
-def midi_to_csv_transpose(midi_file, interval, output_csv):
-    csv_string = pm.midi_to_csv(midi_file)
+def midi_to_csv_transpose(input_midi, interval, output_csv):
+    """Convert MIDI to CSV + transpose """
+    csv_string = pm.midi_to_csv(input_midi)
     transposed_csv = transpose_notes(csv_string, interval)
-    with open(output_csv, "w") as f:
+    with open(output_csv, "w", encoding=ENCODING) as f:
         f.writelines(transposed_csv)
 
 def csv_to_midi_transpose(input_csv, interval, output_midi):
-    with open(input_csv, "r") as f:
+    """Convert CSV to MIDI CSV + transpose """
+    with open(input_csv, "r", encoding=ENCODING) as f:
         csv_data = f.readlines()
     transposed_csv = transpose_notes(csv_data, interval)
     midi = pm.csv_to_midi(transposed_csv)
-    with open(output_midi, "wb") as midi_file:
+    with open(output_midi, "wb", encoding=ENCODING) as midi_file:
         midi_writer = pm.FileWriter(midi_file)
         midi_writer.write(midi)
 
-def midi_loopback(midi_file, output_midi):
-    csv = pm.midi_to_csv(midi_file)    
+def midi_loopback(input_midi, output_midi):
+    """Loopback: convert MIDI to CSV to MIDI """
+    csv = pm.midi_to_csv(input_midi)
     midi = pm.csv_to_midi(csv)
-    with open(output_midi, "wb") as midi_file:
+    with open(output_midi, "wb", encoding=ENCODING) as midi_file:
         midi_writer = pm.FileWriter(midi_file)
         midi_writer.write(midi)
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 5:
