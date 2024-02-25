@@ -29,8 +29,8 @@ def csv_to_midi_transpose(input_csv, interval, output_midi):
 
 if __name__ == "__main__":
     if len(sys.argv) < 5:
-        print("Usage: python midi-csv.py <mode> <input_file> <semitones> <output_file>")
-        print("<mode> should be 'midi-to-csv' or 'csv-to-midi'")
+        print("Usage: python midi-csv.py <input_type> <input_file> <semitones> <output_file>")
+        print("<mode> should be 'midi' or 'csv'")
         sys.exit(1)
 
     mode = sys.argv[1]
@@ -38,9 +38,9 @@ if __name__ == "__main__":
     semitones = int(sys.argv[3])
     output_file = sys.argv[4]
 
-    if mode == "midi-to-csv":
+    if mode == "midi":
         midi_to_csv_transpose(input_file, semitones, output_file)
-    elif mode == "csv-to-midi":
+    elif mode == "csv":
         csv_to_midi_transpose(input_file, semitones, output_file)
     else:
-        print("Invalid mode. Use 'midi-to-csv' or 'csv-to-midi'.")
+        print("Invalid input type. Use 'midi' or 'csv'.")
