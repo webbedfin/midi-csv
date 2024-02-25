@@ -1,11 +1,12 @@
 """
 midi-csv.py
-Converts a .mid file to .csv or .csv to .mid, with optional pitch transposition
+Converts a .mid file to .csv or .csv to .mid, with optional pitch transposition.
+Can also loopback test .mid to .mid
 
 2024 Chris Derry
 """
 
-import sys
+import argparse
 import py_midicsv as pm
 
 encodings = ["utf-8",
@@ -15,61 +16,65 @@ encodings = ["utf-8",
              "cp1252"]
 ENCODING = encodings[0]
 
-def transpose_notes(csv_data, interval):
-    """Transpoke all notes by number of semitones."""
-    transposed_data = []
-    for row in csv_data:
-        if "Note_on_c" in row or "Note_off_c" in row:
-            parts = row.strip().split(", ")
-            note = int(parts[4])
-            transposed_note = max(0, min(127, note + interval))  # Ensure note is within MIDI range
-            parts[4] = str(transposed_note)
-            row = ", ".join(parts)
-        transposed_data.append(row)
-    return transposed_data
+def transpose_note_in_row(row, interval):
+    """Transpose note by number of semitones."""
+    parts = row.strip().split(", ")
+    if "Note_on_c" in row or "Note_off_c" in row:
+        note = int(parts[4])
+        min_midi, max_midi = 0, 127
+        transposed_note = min(max(min_midi, note + interval), max_midi)  # Ensure note is within MIDI range
+        parts[4] = str(transposed_note)
+        row = ", ".join(parts)
+    return row
+
+def transpose(csv_data, interval):
+    """Transpose all notes in CSV"""
+    return [transpose_note_in_row(row, interval) for row in csv_data]
 
 def midi_to_csv_transpose(input_midi, interval, output_csv):
     """Convert MIDI to CSV + transpose """
     csv_string = pm.midi_to_csv(input_midi)
-    transposed_csv = transpose_notes(csv_string, interval)
+    transposed_csv = transpose(csv_string, interval)
     with open(output_csv, "w", encoding=ENCODING) as f:
         f.writelines(transposed_csv)
 
 def csv_to_midi_transpose(input_csv, interval, output_midi):
     """Convert CSV to MIDI CSV + transpose """
     with open(input_csv, "r", encoding=ENCODING) as f:
-        csv_data = f.readlines()
-    transposed_csv = transpose_notes(csv_data, interval)
+        csv_data = f.readlines()   
+    transposed_csv = transpose(csv_data, interval)
     midi = pm.csv_to_midi(transposed_csv)
     with open(output_midi, "wb", encoding=ENCODING) as midi_file:
-        midi_writer = pm.FileWriter(midi_file)
-        midi_writer.write(midi)
+        pm.FileWriter(midi_file).write(midi)
 
 def midi_loopback(input_midi, output_midi):
     """Loopback: convert MIDI to CSV to MIDI """
     csv = pm.midi_to_csv(input_midi)
     midi = pm.csv_to_midi(csv)
     with open(output_midi, "wb", encoding=ENCODING) as midi_file:
-        midi_writer = pm.FileWriter(midi_file)
-        midi_writer.write(midi)
+        pm.FileWriter(midi_file).write(midi)
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Converts .mid to .csv or .csv to .mid, with optional pitch transposition.")
+    parser.add_argument('input_type', type=str, help="Type of the input file ('mid', 'csv', 'loop')")
+    parser.add_argument('input_file', type=str, help="Path of the input file")
+    parser.add_argument('semitones', type=int, help="Number of semitones to transpose")
+    parser.add_argument('output_file', type=str, help="Path of the output file")
+    
+    args = parser.parse_args()
+    
+    operations = {"mid": midi_to_csv_transpose,
+                  "csv": csv_to_midi_transpose, 
+                  "loop": midi_loopback}
+    
+    operation = operations.get(args.input_type)
+    
+    if operation is None:
+        print("Invalid input type.")
+        return
+    operation(args.input_file, args.semitones, args.output_file)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 5:
-        print("Usage: python midi-csv.py <input_type> <input_file> <semitones> <output_file>")
-        print("<input_type> should be 'mid', 'csv' or 'loop' (mid->mid)")
-        sys.exit(1)
-
-    input_type = sys.argv[1]
-    input_file = sys.argv[2]
-    semitones = int(sys.argv[3])
-    output_file = sys.argv[4]
-
-    if input_type == "mid":
-        midi_to_csv_transpose(input_file, semitones, output_file)
-    elif input_type == "csv":
-        csv_to_midi_transpose(input_file, semitones, output_file)
-    elif input_type == "loop":
-        midi_loopback(input_file, output_file)
-    else:
-        print("Invalid input type.")
+    main()
