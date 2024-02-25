@@ -1,3 +1,6 @@
 venv/
 tmp/
 mid/
+__pycache__/
+*.pyc
+junk.*
