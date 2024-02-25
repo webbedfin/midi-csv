@@ -22,8 +22,8 @@ def transpose_note_in_row(row, interval):
     parts = row.strip().split(", ")
     if "Note_on_c" in row or "Note_off_c" in row:
         note = int(parts[4])
-        min_midi, max_midi = 0, 127
-        transposed_note = min(max(min_midi, note + interval), max_midi)  # Ensure note is within MIDI range
+        min_midi, max_midi = 0, 127  # Ensure note is within MIDI range
+        transposed_note = min(max(min_midi, note + interval), max_midi)
         parts[4] = str(transposed_note)
         row = ", ".join(parts)
     return row
@@ -38,6 +38,7 @@ def midi_to_csv_transpose(input_midi, interval, output_csv):
     transposed_csv = transpose(csv_string, interval)
     with open(output_csv, "w", encoding=ENCODING) as f:
         f.writelines(transposed_csv)
+    return 0
 
 def csv_to_midi_transpose(input_csv, interval, output_midi):
     """Convert CSV to MIDI CSV + transpose """
@@ -45,17 +46,18 @@ def csv_to_midi_transpose(input_csv, interval, output_midi):
         csv_data = f.readlines()   
     transposed_csv = transpose(csv_data, interval)
     midi = pm.csv_to_midi(transposed_csv)
-    with open(output_midi, "wb", encoding=ENCODING) as midi_file:
+    with open(output_midi, "wb") as midi_file:
         pm.FileWriter(midi_file).write(midi)
 
-def midi_loopback(input_midi, output_midi):
+def midi_loopback(input_midi, _, output_midi):
     """Loopback: convert MIDI to CSV to MIDI """
     csv = pm.midi_to_csv(input_midi)
     midi = pm.csv_to_midi(csv)
-    with open(output_midi, "wb", encoding=ENCODING) as midi_file:
+    with open(output_midi, "wb") as midi_file:
         pm.FileWriter(midi_file).write(midi)
 
-if __name__ == "__main__":
+def midi_csv_convert():
+    """ main """
     parser = argparse.ArgumentParser(
         description="Converts .mid to .csv or .csv to .mid, with optional pitch transposition.")
     parser.add_argument('conv_mode', type=str,
@@ -77,4 +79,12 @@ if __name__ == "__main__":
         print("Invalid input type.")
         sys.exit(1)
 
-    process(args.input_file, args.semitones, args.output_file)
+    try:
+        process(args.input_file, args.semitones, args.output_file)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+
+if __name__ == "__main__":
+    midi_csv_convert()
+    
