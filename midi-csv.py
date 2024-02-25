@@ -23,9 +23,17 @@ def csv_to_midi_transpose(input_csv, interval, output_midi):
     with open(input_csv, "r") as f:
         csv_data = f.readlines()
     transposed_csv = transpose_notes(csv_data, interval)
-    midi_data = pm.csv_to_midi(transposed_csv)
+    midi = pm.csv_to_midi(transposed_csv)
     with open(output_midi, "wb") as midi_file:
-        midi_file.write(midi_data)
+        midi_writer = pm.FileWriter(midi_file)
+        midi_writer.write(midi)
+
+def midi_loopback(midi_file, output_midi):
+    csv = pm.midi_to_csv(midi_file)    
+    midi = pm.csv_to_midi(csv)
+    with open(output_midi, "wb") as midi_file:
+        midi_writer = pm.FileWriter(midi_file)
+        midi_writer.write(midi)
 
 if __name__ == "__main__":
     if len(sys.argv) < 5:
@@ -42,5 +50,7 @@ if __name__ == "__main__":
         midi_to_csv_transpose(input_file, semitones, output_file)
     elif input_type == "csv":
         csv_to_midi_transpose(input_file, semitones, output_file)
+    elif input_type == "loop":
+        midi_loopback(input_file, output_file)
     else:
         print("Invalid input type. Use 'midi' or 'csv'.")
