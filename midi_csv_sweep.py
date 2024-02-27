@@ -12,19 +12,21 @@ def sweep_directory(directory: str):
     Args:
     directory (str): The directory to sweep
     """
-    exception_count = 0
+    fails = 0
+    succeeds = 0
     for root, dirs, files in os.walk(directory):
         for file in files:
             filepath = os.path.join(root, file)
             try:
                 status = midi_loopback(filepath, 0, "junk.mid")
-            except Exception as e:
-                # print(f"An error occurred: {e}")
-                exception_count += 1 
+            except Exception:
+                #print(f"An error occurred: {e}")
+                fails += 1 
             else:
                 print(filepath)
+                succeeds += 1
            
-    print(f"{exception_count} exceptions")
+    print(f"{fails} failures, {succeeds} successes")
     
 if __name__ == "__main__":
     root_folder = sys.argv[1]
