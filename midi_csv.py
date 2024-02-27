@@ -42,7 +42,6 @@ def midi_to_csv_transpose(input_midi, interval, output_csv):
     transposed_csv = transpose(csv_string, interval)
     with open(output_csv, "w", encoding=ENCODING) as f:
         f.writelines(transposed_csv)
-    return 0
 
 def csv_to_midi_transpose(input_csv, interval, output_midi):
     """Convert CSV to MIDI CSV + transpose """
@@ -62,10 +61,10 @@ def midi_loopback(input_midi, _, output_midi):
     with open(output_midi, "wb") as midi_file:
         pm.FileWriter(midi_file).write(midi)
 
-def note_number_to_name(note_number):   
+def note_number_to_name(note_number):
     """Function to convert MIDI note numbers to note names"""
     note_names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-    return note_names[note_number % 12] + str(note_number // 12 - 1)
+    return note_names[note_number % 12] # + str(note_number // 12 - 1)
 
 def analyze_and_plot_chords(midi_path):
     """Create chord histograms"""
@@ -74,6 +73,8 @@ def analyze_and_plot_chords(midi_path):
 
     # Set to hold currently active notes
     active_notes = set()
+
+    chord_min_note_count = 4
 
     # Process each track in the MIDI file
     for track in mid.tracks:
@@ -87,14 +88,17 @@ def analyze_and_plot_chords(midi_path):
                     active_notes.remove(msg.note)
                     # When a note is released, check if there are any other notes being played
                     if active_notes:
-                        # Sort the notes to ensure consistent chord naming
-                        chord = '+'.join(sorted([note_number_to_name(note) for note in active_notes]))
-                        if len(active_notes) > 2:
+                        # Sort unique notes to ensure consistent chord naming
+                        note_names = [note_number_to_name(note) for note in active_notes]
+                        unique_note_names = sorted(set(note_names))  # Convert to set to remove duplicates, then sort
+                        chord = '+'.join(unique_note_names)
+                        if len(active_notes) >= chord_min_note_count:
                             chord_counts[chord] += 1
 
     # Now we have the counts of each chord, we can plot a histogram
-    chord_names = list(chord_counts.keys())
-    chord_values = [chord_counts[chord] for chord in chord_names]
+    histogram_count = 20
+    chord_names = [chord for chord in chord_counts.keys() if chord_counts[chord] >= histogram_count]
+    chord_values = [chord_counts[chord] for chord in chord_names if chord_counts[chord] >= histogram_count]
 
     plt.bar(chord_names, chord_values)
     plt.xlabel('Chords')
@@ -134,4 +138,3 @@ def midi_csv_convert():
 
 if __name__ == "__main__":
     midi_csv_convert()
-    
