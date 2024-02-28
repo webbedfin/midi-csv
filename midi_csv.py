@@ -8,10 +8,10 @@ Can also loopback test .mid to .mid
 
 import sys
 import argparse
-import py_midicsv as pm
-import mido
 from collections import defaultdict
 import matplotlib.pyplot as plt
+import py_midicsv as pm
+import mido
 
 encodings = ["utf-8",
              "utf-8-sig", 
@@ -71,12 +71,14 @@ def analyze_and_plot_chords(midi_path):
     mid = mido.MidiFile(midi_path)
     note_counts = defaultdict(int)
     chord_counts = defaultdict(int)
-
+    total_notes = 0
+    total_chords = 0
+    
     # Set to hold currently active notes
     active_notes = set()
 
     # chord definition
-    chord_min_note_count = 3
+    chord_note_count = [3]
 
     # Process each track in the MIDI file
     for track in mid.tracks:
@@ -88,37 +90,37 @@ def analyze_and_plot_chords(midi_path):
                 # Note off
                 if msg.note in active_notes:
                     note_counts[note_number_to_name(msg.note)] += 1
+                    total_notes += 1
                     active_notes.remove(msg.note)
                     # When a note is released, check if there are any other notes being played
                     if active_notes:
                         # Sort unique notes to ensure consistent chord naming
                         note_names = [note_number_to_name(note) for note in active_notes]
-                        unique_note_names = sorted(set(note_names))  # Convert to set to remove duplicates, then sort
+                        # Convert to set to remove duplicates, then sort
+                        unique_note_names = sorted(set(note_names))  
                         chord = '+'.join(unique_note_names)
-                        if len(active_notes) >= chord_min_note_count:
+                        if len(unique_note_names) in chord_note_count:
                             chord_counts[chord] += 1
+                            total_chords += 1
 
     # Now we have the counts of each chord, we can plot a histogram
-    histogram_count = 20
+    histogram_count = total_chords / 30
     chord_names = [chord for chord in chord_counts.keys() if chord_counts[chord] >= histogram_count]
     chord_values = [chord_counts[chord] for chord in chord_names if chord_counts[chord] >= histogram_count]
 
-    fig, axs = plt.subplots(2)
+    _, axs = plt.subplots(2)
 
     axs[0].bar(chord_names, chord_values)
     axs[0].set_title('Chord Histogram')
-    #plt.xticks(rotation=90)  # Rotate the x labels to show them better
 
     note_names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
     note_values = [note_counts[note] for note in note_names]
 
     axs[1].bar(note_names, note_values)
     axs[1].set_title('Note Histogram')
-    #plt.xticks(rotation=90)  # Rotate the x labels to show them better
-    
     plt.tight_layout()
     plt.show()
-    
+
 def midi_csv_convert():
     """ MIDI <-> CSV Converter Utility """
     parser = argparse.ArgumentParser(
