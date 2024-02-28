@@ -103,8 +103,10 @@ def analyze_and_plot_chords(midi_path):
                             chord_counts[chord] += 1
                             total_chords += 1
 
+    max_chord_count = max(chord_counts.values())
+
     # Now we have the counts of each chord, we can plot a histogram
-    histogram_count = total_chords / 30
+    histogram_count = max_chord_count / 3
     chord_names = [chord for chord in chord_counts.keys() if chord_counts[chord] >= histogram_count]
     chord_values = [chord_counts[chord] for chord in chord_names if chord_counts[chord] >= histogram_count]
 
