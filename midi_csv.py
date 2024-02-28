@@ -69,12 +69,14 @@ def note_number_to_name(note_number):
 def analyze_and_plot_chords(midi_path):
     """Create chord histograms"""
     mid = mido.MidiFile(midi_path)
+    note_counts = defaultdict(int)
     chord_counts = defaultdict(int)
 
     # Set to hold currently active notes
     active_notes = set()
 
-    chord_min_note_count = 4
+    # chord definition
+    chord_min_note_count = 3
 
     # Process each track in the MIDI file
     for track in mid.tracks:
@@ -85,6 +87,7 @@ def analyze_and_plot_chords(midi_path):
             elif (msg.type == 'note_off') or (msg.type == 'note_on' and msg.velocity == 0):
                 # Note off
                 if msg.note in active_notes:
+                    note_counts[note_number_to_name(msg.note)] += 1
                     active_notes.remove(msg.note)
                     # When a note is released, check if there are any other notes being played
                     if active_notes:
@@ -100,15 +103,24 @@ def analyze_and_plot_chords(midi_path):
     chord_names = [chord for chord in chord_counts.keys() if chord_counts[chord] >= histogram_count]
     chord_values = [chord_counts[chord] for chord in chord_names if chord_counts[chord] >= histogram_count]
 
-    plt.bar(chord_names, chord_values)
-    plt.xlabel('Chords')
-    plt.ylabel('Counts')
-    plt.title('Histogram of Chords Played')
-    plt.xticks(rotation=90)  # Rotate the x labels to show them better
-    plt.show()
+    fig, axs = plt.subplots(2)
 
+    axs[0].bar(chord_names, chord_values)
+    axs[0].set_title('Chord Histogram')
+    #plt.xticks(rotation=90)  # Rotate the x labels to show them better
+
+    note_names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+    note_values = [note_counts[note] for note in note_names]
+
+    axs[1].bar(note_names, note_values)
+    axs[1].set_title('Note Histogram')
+    #plt.xticks(rotation=90)  # Rotate the x labels to show them better
+    
+    plt.tight_layout()
+    plt.show()
+    
 def midi_csv_convert():
-    """ main """
+    """ MIDI <-> CSV Converter Utility """
     parser = argparse.ArgumentParser(
         description="Converts .mid to .csv or .csv to .mid, with optional pitch transposition.")
     parser.add_argument('conv_mode', type=str,
