@@ -130,8 +130,33 @@ def plot_chords(note_counts, chord_counts):
     plt.tight_layout()
     plt.show()
 
-def midi_csv_convert():
-    """ MIDI <-> CSV Converter Utility """
+class MidiCsvConverter:
+    def __init__(self, input_file, semitones, output_file):
+        self.input_file = input_file
+        self.semitones = semitones
+        self.output_file = output_file
+        self.encodings = ["utf-8", "utf-8-sig", "iso-8859-1", "latin1", "cp1252"]
+        self.ENCODING = self.encodings[0]
+
+    # ... (other methods here, like transpose_note_in_row, transpose, midi_to_csv_transpose, etc.)
+
+    def midi_csv_convert(self):
+        modes = {"mid": self.midi_to_csv_transspose,
+                 "csv": self.csv_to_midi_transpose, 
+                 "loop": self.midi_loopback}
+        process = modes.get(args.conv_mode)
+
+        if process is None:
+            print("Invalid input type.")
+            sys.exit(1)
+
+        try:
+            process(self.input_file, self.semitones, self.output_file)
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Converts .mid to .csv or .csv to .mid, with optional pitch transposition.")
     parser.add_argument('conv_mode', type=str,
@@ -144,20 +169,5 @@ def midi_csv_convert():
                         help="Output .csv/.mid file")
     args = parser.parse_args()
 
-    modes = {"mid": midi_to_csv_transpose,
-             "csv": csv_to_midi_transpose, 
-             "loop": midi_loopback}
-    process = modes.get(args.conv_mode)
-
-    if process is None:
-        print("Invalid input type.")
-        sys.exit(1)
-
-    try:
-        process(args.input_file, args.semitones, args.output_file)
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
-
-if __name__ == "__main__":
-    midi_csv_convert()
+    converter = MidiCsvConverter(args.input_file, args.semitones, args.output_file)
+    converter.midi_csv_convert()
