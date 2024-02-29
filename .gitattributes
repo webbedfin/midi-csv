@@ -1,0 +1,2 @@
+fight4right.mid filter=lfs diff=lfs merge=lfs -text
+junk.mid filter=lfs diff=lfs merge=lfs -text
