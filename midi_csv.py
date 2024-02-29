@@ -37,7 +37,8 @@ def transpose(csv_data, interval):
 
 def midi_to_csv_transpose(input_midi, interval, output_csv):
     """Convert MIDI to CSV + transpose """
-    analyze_and_plot_chords(input_midi)
+    note_counts, chord_counts = analyze_chords(input_midi)
+    plot_chords(note_counts, chord_counts)
     csv_string = pm.midi_to_csv(input_midi)
     transposed_csv = transpose(csv_string, interval)
     with open(output_csv, "w", encoding=ENCODING) as f:
@@ -51,11 +52,13 @@ def csv_to_midi_transpose(input_csv, interval, output_midi):
     midi = pm.csv_to_midi(transposed_csv)
     with open(output_midi, "wb") as midi_file:
         pm.FileWriter(midi_file).write(midi)
-    analyze_and_plot_chords(midi_file)
+    note_counts, chord_counts = analyze_chords(output_midi)
+    plot_chords(note_counts, chord_counts)
 
 def midi_loopback(input_midi, _, output_midi):
     """Loopback: convert MIDI to CSV to MIDI """
-    analyze_and_plot_chords(input_midi)
+    note_counts, chord_counts = analyze_chords(output_midi)
+    plot_chords(note_counts, chord_counts)
     csv = pm.midi_to_csv(input_midi)
     midi = pm.csv_to_midi(csv)
     with open(output_midi, "wb") as midi_file:
@@ -66,8 +69,8 @@ def note_number_to_name(note_number):
     note_names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
     return note_names[note_number % 12] # + str(note_number // 12 - 1)
 
-def analyze_and_plot_chords(midi_path):
-    """Create chord histograms"""
+def analyze_chords(midi_path):
+    """Analyze chords from a MIDI file"""
     mid = mido.MidiFile(midi_path)
     note_counts = defaultdict(int)
     chord_counts = defaultdict(int)
@@ -103,6 +106,10 @@ def analyze_and_plot_chords(midi_path):
                             chord_counts[chord] += 1
                             total_chords += 1
 
+    return note_counts, chord_counts
+
+def plot_chords(note_counts, chord_counts):
+    """Plot chord and note histograms"""
     max_chord_count = max(chord_counts.values())
 
     # Now we have the counts of each chord, we can plot a histogram
