@@ -14,7 +14,13 @@ import py_midicsv as pm
 import mido
 
 class Converter:
+    """
+    A class used to convert MIDI files to CSV and vice versa, with optional pitch transposition.
+    """
     def __init__(self, input_file, semitones, output_file):
+        """
+        Initialize the Converter with input file, semitones for transposition, and output file.
+        """
         self.input_file = input_file
         self.semitones = semitones
         self.output_file = output_file
@@ -23,12 +29,18 @@ class Converter:
         self.plotter = Plotter()
 
     def midi_to_csv_transpose(self):
+        """
+        Convert MIDI to CSV and transpose it.
+        """
         csv_string = pm.midi_to_csv(self.input_file)
         transposed_csv = self.transposer.transpose(csv_string, self.semitones)
         with open(self.output_file, "w", encoding=self.transposer.ENCODING) as f:
             f.writelines(transposed_csv)
 
     def csv_to_midi_transpose(self):
+        """
+        Convert CSV to MIDI and transpose it.
+        """
         with open(self.input_file, "r", encoding=self.transposer.ENCODING) as f:
             csv_data = f.readlines()   
         transposed_csv = self.transposer.transpose(csv_data, self.semitones)
@@ -37,12 +49,18 @@ class Converter:
             pm.FileWriter(midi_file).write(midi)
 
     def midi_loopback(self):
+        """
+        Perform a loopback test from MIDI to MIDI.
+        """
         csv = pm.midi_to_csv(self.input_file)
         midi = pm.csv_to_midi(csv)
         with open(self.output_file, "wb") as midi_file:
             pm.FileWriter(midi_file).write(midi)
 
     def midi_csv_convert(self, conv_mode):
+        """
+        Convert MIDI to CSV or CSV to MIDI based on the conversion mode.
+        """
         modes = {"mid": self.midi_to_csv_transpose,
                  "csv": self.csv_to_midi_transpose, 
                  "loop": self.midi_loopback}
@@ -60,12 +78,20 @@ class Converter:
             print(f"An error occurred: {e}")
 
 class Transposer:
+    """
+    A class used to transpose MIDI notes.
+    """
     def __init__(self):
+        """
+        Initialize the Transposer with a list of possible encodings.
+        """
         self.encodings = ["utf-8", "utf-8-sig", "iso-8859-1", "latin1", "cp1252"]
         self.ENCODING = self.encodings[0]
 
     def transpose_note_in_row(self, row, interval):
-        """Transpose note by number of semitones."""
+        """
+        Transpose a note in a row by a given interval.
+        """
         parts = row.strip().split(", ")
         if "Note_on_c" in row or "Note_off_c" in row:
             note = int(parts[4])
@@ -76,16 +102,26 @@ class Transposer:
         return row
 
     def transpose(self, csv_data, interval):
+        """
+        Transpose all notes in a CSV data by a given interval.
+        """
         return [self.transpose_note_in_row(row, interval) for row in csv_data]
 
 class Analyzer:
+    """
+    A class used to analyze chords from a MIDI file.
+    """
     def note_number_to_name(self, note_number):
-        """Function to convert MIDI note numbers to note names"""
+        """
+        Convert MIDI note numbers to note names.
+        """
         note_names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
         return note_names[note_number % 12] # + str(note_number // 12 - 1)
 
     def analyze_chords(self, midi_path):
-        """Analyze chords from a MIDI file"""
+        """
+        Analyze chords from a MIDI file.
+        """
         mid = mido.MidiFile(midi_path)
         note_counts = defaultdict(int)
         chord_counts = defaultdict(int)
@@ -125,8 +161,13 @@ class Analyzer:
 
 
 class Plotter:
+    """
+    A class used to plot chord and note histograms.
+    """
     def plot_chords(self, note_counts, chord_counts):
-        """Plot chord and note histograms"""
+        """
+        Plot chord and note histograms.
+        """
         max_chord_count = max(chord_counts.values())
 
         # Now we have the counts of each chord, we can plot a histogram
