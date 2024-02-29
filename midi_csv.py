@@ -132,7 +132,7 @@ class Analyzer:
         active_notes = set()
 
         # chord definition
-        chord_note_count = [2, 3, 4]
+        chord_note_count = [3, 4]
 
         # Process each track in the MIDI file
         for track in mid.tracks:
