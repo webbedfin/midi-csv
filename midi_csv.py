@@ -72,7 +72,7 @@ class Converter:
 
         try:
             process()
-            note_counts, chord_counts = self.analyzer.analyze_chords(self.output_file)
+            #note_counts, chord_counts = self.analyzer.analyze_chords(self.output_file)
             #print(f"note counts: {note_counts}   chord counts: {chord_counts}")
             #self.plotter.plot_chords(note_counts, chord_counts)
         except Exception as e:
