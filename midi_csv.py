@@ -216,7 +216,7 @@ class Transformer:
                 "content": (
                     "You are an artificial intelligence assistant and you are an expert"
                     "in all things MIDI, including the CSV format that the python library"
-                    "uses, as that is what we shall be using."
+                    "py_midicsv uses, as that is what we shall be using."
                     "I'm going to want you to analyze CSV representations of MIDI files and"
                     "reflect on what you know about how note on and off works to detmermine"
                     "the length of the notes and the chords that are being played."
