@@ -4,3 +4,4 @@ mid/
 __pycache__/
 *.pyc
 junk.*
+winvenv/
