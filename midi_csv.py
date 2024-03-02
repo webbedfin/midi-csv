@@ -7,6 +7,7 @@ Can also loopback test .mid to .mid
 """
 
 import sys
+import os
 import argparse
 from collections import defaultdict
 import matplotlib.pyplot as plt
@@ -196,7 +197,7 @@ class Transformer:
         A class to make pplx API calls 
         """
 
-        API_KEY = "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"
+        API_KEY = os.environ.get('PPLX_API_KEY')
         messages = [
             {
                 "role": "system",
