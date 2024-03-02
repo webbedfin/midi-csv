@@ -2,7 +2,7 @@
 
 import os
 import sys
-from midi_csv import midi_loopback
+from midi_csv import Converter
 
 def sweep_directory(directory: str):
     """
@@ -12,13 +12,16 @@ def sweep_directory(directory: str):
     Args:
     directory (str): The directory to sweep
     """
-    fails = 0
+    
+    
+    
     succeeds = 0
+    fails = 0
     for root, dirs, files in os.walk(directory):
         for file in files:
             filepath = os.path.join(root, file)
             try:
-                status = midi_loopback(filepath, 0, "junk.mid")
+                Converter(filepath, 0, "junk.mid").midi_loopback()
             except Exception:
                 #print(f"An error occurred: {e}")
                 fails += 1 
