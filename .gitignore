@@ -1,6 +1,7 @@
 venv/
 tmp/
 mid/
+csv/
 __pycache__/
 *.pyc
 junk.*
