@@ -12,16 +12,15 @@ def sweep_directory(directory: str):
     Args:
     directory (str): The directory to sweep
     """
-    
-    
-    
     succeeds = 0
     fails = 0
     for root, dirs, files in os.walk(directory):
         for file in files:
             filepath = os.path.join(root, file)
             try:
-                Converter(filepath, 0, "junk.mid").midi_loopback()
+                Converter(filepath, 0, "loopback.mid").midi_csv_convert("loop")
+                #Converter(filepath, 0, file+".csv").midi_csv_convert("mid")
+                #Converter(filepath, 0, file+".mid").midi_csv_convert("csv")
             except Exception:
                 #print(f"An error occurred: {e}")
                 fails += 1 
