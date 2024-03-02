@@ -19,7 +19,7 @@ class Converter:
     """
     A class used to convert MIDI files to CSV and vice versa, with optional pitch transposition.
     """
-    def __init__(self, input_file, semitones, output_file):
+    def __init__(self, input_file, semitones=0, output_file="loopback.mid"):
         """
         Initialize the Converter with input file, semitones for transposition, and output file.
         """
@@ -192,23 +192,45 @@ class Plotter:
         plt.show()
 
 class Transformer:
-    def process():
+    def process(midi_path):
         """
         A class to make pplx API calls 
         """
+
+        # Load the MIDI file and parse it into CSV format
+        csv_string = pm.midi_to_csv(midi_path)
+
+        # Convert the CSV output into a single string
+        csv_content = "".join(csv_string)
+
+        # truncate the string to the 16384 token limit
+        csv_content = csv_content[:16384]
 
         API_KEY = os.environ.get('PPLX_API_KEY')
         messages = [
             {
                 "role": "system",
                 "content": (
-                    "You are an artificial intelligence assistant and you need to "
-                    "engage in a helpful, detailed, polite conversation with a user."
+                    "You are an artificial intelligence assistant and you are an expert"
+                    "in all things MIDI, including the CSV format that the python library"
+                    "uses, as that is what we shall be using."
+                    "I'm going to want you to analyze CSV representations of MIDI files and"
+                    "reflect on what you know about how note on and off works to detmermine"
+                    "the length of the notes and the chords that are being played."
+                    "Take a first pass through to get a feel how the chords create a harmonic"
+                    "structure and then take a second pass to determine the melody."
+                    "As you do this, note where you think the song sections are and name then"
+                    "Try to determine the genre of the song."
+                    "After you have done this, I want you to report on your observations."
+                    "I am more interested in purely musical observations, but technical"
+                    "concerns and curiosities should be noted as well. For technical issues"
+                    "that you think are irrelevant, you can ignore them but note at the end"
+                    "if you find more than 5 or so."
                 ),
             },
             {
                 "role": "user",
-                "content": "How many stars are in the universe?",
+                "content": csv_content,
             },
         ]
 
@@ -235,14 +257,16 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Converts .mid to .csv or .csv to .mid, with optional pitch transposition.")
     parser.add_argument('conv_mode', type=str,
-                        help="Conversion mode ('mid', 'csv', 'loop')")
+                        help="Conversion mode ('mid', 'csv', 'loop', 'xform')")
     parser.add_argument('input_file', type=str,
                         help="Input .mid/.csv file")
-    parser.add_argument('--semitones', type=int, default=0,
+    parser.add_argument('--semitones', type=int,
                         help="Number of semitones to transpose")
-    parser.add_argument('--output_file', type=str, default='junk',
+    parser.add_argument('--output_file', type=str,
                         help="Output .csv/.mid file")
     args = parser.parse_args()
 
-    #Converter(args.input_file, args.output_file, args.semitones).midi_csv_convert(args.conv_mode)
-    Transformer.process()
+    if args.conv_mode == "xform":
+        Transformer.process(args.input_file)
+    else:
+        Converter(args.input_file, args.output_file, args.semitones).midi_csv_convert(args.conv_mode)
