@@ -3,7 +3,7 @@ midi-csv.py
 Converts a .mid file to .csv or .csv to .mid, with optional pitch transposition.
 Can also loopback test .mid to .mid
 
-2024 Chris Derry
+2024 Chris Derry & ChatGPT
 """
 
 import sys
@@ -28,7 +28,7 @@ class Converter:
         self.analyzer = Analyzer()
         self.plotter = Plotter()
 
-    def midi_to_csv_transpose(self):
+    def _midi_to_csv_transpose(self):
         """
         Convert MIDI to CSV and transpose it.
         """
@@ -37,7 +37,7 @@ class Converter:
         with open(self.output_file, "w", encoding=self.transposer.ENCODING) as f:
             f.writelines(transposed_csv)
 
-    def csv_to_midi_transpose(self):
+    def _csv_to_midi_transpose(self):
         """
         Convert CSV to MIDI and transpose it.
         """
@@ -48,7 +48,7 @@ class Converter:
         with open(self.output_file, "wb") as midi_file:
             pm.FileWriter(midi_file).write(midi)
 
-    def midi_loopback(self):
+    def _midi_loopback(self):
         """
         Perform a loopback test from MIDI to MIDI.
         """
@@ -61,9 +61,9 @@ class Converter:
         """
         Convert MIDI to CSV or CSV to MIDI based on the conversion mode.
         """
-        modes = {"mid": self.midi_to_csv_transpose,
-                 "csv": self.csv_to_midi_transpose, 
-                 "loop": self.midi_loopback}
+        modes = {"mid": self._midi_to_csv_transpose,
+                 "csv": self._csv_to_midi_transpose, 
+                 "loop": self._midi_loopback}
         process = modes.get(conv_mode)
 
         if process is None:
@@ -73,7 +73,8 @@ class Converter:
         try:
             process()
             note_counts, chord_counts = self.analyzer.analyze_chords(self.output_file)
-            self.plotter.plot_chords(note_counts, chord_counts)
+            #print(f"note counts: {note_counts}   chord counts: {chord_counts}")
+            #self.plotter.plot_chords(note_counts, chord_counts)
         except Exception as e:
             print(f"An error occurred: {e}")
 
@@ -88,7 +89,7 @@ class Transposer:
         self.encodings = ["utf-8", "utf-8-sig", "iso-8859-1", "latin1", "cp1252"]
         self.ENCODING = self.encodings[0]
 
-    def transpose_note_in_row(self, row, interval):
+    def _transpose_note_in_row(self, row, interval):
         """
         Transpose a note in a row by a given interval.
         """
@@ -105,13 +106,13 @@ class Transposer:
         """
         Transpose all notes in a CSV data by a given interval.
         """
-        return [self.transpose_note_in_row(row, interval) for row in csv_data]
+        return [self._transpose_note_in_row(row, interval) for row in csv_data]
 
 class Analyzer:
     """
     A class used to analyze chords from a MIDI file.
     """
-    def note_number_to_name(self, note_number):
+    def _note_number_to_name(self, note_number):
         """
         Convert MIDI note numbers to note names.
         """
@@ -143,13 +144,13 @@ class Analyzer:
                 elif (msg.type == 'note_off') or (msg.type == 'note_on' and msg.velocity == 0):
                     # Note off
                     if msg.note in active_notes:
-                        note_counts[self.note_number_to_name(msg.note)] += 1
+                        note_counts[self._note_number_to_name(msg.note)] += 1
                         total_notes += 1
                         active_notes.remove(msg.note)
                         # When a note is released, check if there are any other notes being played
                         if active_notes:
                             # Sort unique notes to ensure consistent chord naming
-                            note_names = [self.note_number_to_name(note) for note in active_notes]
+                            note_names = [self._note_number_to_name(note) for note in active_notes]
                             # Convert to set to remove duplicates, then sort
                             unique_note_names = sorted(set(note_names))  
                             chord = '+'.join(unique_note_names)
