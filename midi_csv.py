@@ -12,6 +12,7 @@ from collections import defaultdict
 import matplotlib.pyplot as plt
 import py_midicsv as pm
 import mido
+from openai import OpenAI
 
 class Converter:
     """
@@ -189,6 +190,46 @@ class Plotter:
         plt.tight_layout()
         plt.show()
 
+class Transformer:
+    def process():
+        """
+        A class to make pplx API calls 
+        """
+
+        API_KEY = "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"
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "You are an artificial intelligence assistant and you need to "
+                    "engage in a helpful, detailed, polite conversation with a user."
+                ),
+            },
+            {
+                "role": "user",
+                "content": "How many stars are in the universe?",
+            },
+        ]
+
+        client = OpenAI(api_key=API_KEY, base_url="https://api.perplexity.ai")
+
+        # For chat completion without streaming
+        response = client.chat.completions.create(
+            model="mistral-7b-instruct",
+            messages=messages,
+        )
+        print(response.choices[0].message.content)
+
+        # For chat completion with streaming
+        # response_stream = client.chat.completions.create(
+        #     model="mistral-7b-instruct",
+        #     messages=messages,
+        #     stream=True,
+        # )
+        # for response in response_stream:
+        #     print(response)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Converts .mid to .csv or .csv to .mid, with optional pitch transposition.")
@@ -196,11 +237,11 @@ if __name__ == "__main__":
                         help="Conversion mode ('mid', 'csv', 'loop')")
     parser.add_argument('input_file', type=str,
                         help="Input .mid/.csv file")
-    parser.add_argument('semitones', type=int,
+    parser.add_argument('--semitones', type=int, default=0,
                         help="Number of semitones to transpose")
-    parser.add_argument('output_file', type=str,
+    parser.add_argument('--output_file', type=str, default='junk',
                         help="Output .csv/.mid file")
     args = parser.parse_args()
 
-    converter = Converter(args.input_file, args.semitones, args.output_file)
-    converter.midi_csv_convert(args.conv_mode)
+    #Converter(args.input_file, args.output_file, args.semitones).midi_csv_convert(args.conv_mode)
+    Transformer.process()
