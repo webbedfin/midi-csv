@@ -59,7 +59,7 @@ class Converter:
         with open(self.output_file, "wb") as midi_file:
             pm.FileWriter(midi_file).write(midi)
 
-    def midi_csv_convert(self, conv_mode):
+    def midi_csv_convert(self, conv_mode, plot=False):
         """
         Convert MIDI to CSV or CSV to MIDI based on the conversion mode.
         """
@@ -67,18 +67,21 @@ class Converter:
                  "csv": self._csv_to_midi_transpose, 
                  "loop": self._midi_loopback}
         process = modes.get(conv_mode)
-
         if process is None:
             print("Invalid input type.")
             sys.exit(1)
 
         try:
             process()
-            #note_counts, chord_counts = self.analyzer.analyze_chords(self.output_file)
-            #print(f"note counts: {note_counts}   chord counts: {chord_counts}")
-            #self.plotter.plot_chords(note_counts, chord_counts)
-        except Exception as e:
-            print(f"An error occurred: {e}")
+        except Exception:
+            print("x")
+        
+        if plot:
+            note_counts, chord_counts = self.analyzer.analyze_chords(self.input_file)
+            print(f"note counts: {note_counts}   chord counts: {chord_counts}")
+            self.plotter.plot_chords(note_counts, chord_counts)
+
+
 
 class Transposer:
     """
@@ -264,9 +267,14 @@ if __name__ == "__main__":
                         help="Number of semitones to transpose")
     parser.add_argument('--output_file', type=str,
                         help="Output .csv/.mid file")
+    parser.add_argument('--plot', type=bool, default=False,
+                        help="Enable plotting")
+
     args = parser.parse_args()
 
     if args.conv_mode == "xform":
         Transformer.process(args.input_file)
     else:
-        Converter(args.input_file, args.output_file, args.semitones).midi_csv_convert(args.conv_mode)
+        Converter(args.input_file,
+                  args.output_file,
+                  args.semitones).midi_csv_convert(args.conv_mode, args.plot)
