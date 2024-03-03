@@ -1,18 +1,18 @@
+"""
+A class to make pplx API calls 
+"""
 import sys
-
 from openai import OpenAI
-import py_midicsv as pm
 
 class Transformer:
-    def pplx_process(csv_content):
-        """
-        A class to make pplx API calls 
-        """
+    __init__(self):
+        self.API_KEY = os.environ.get('PPLX_API_KEY')
+    
+    def pplx_process(self, csv_content):
 
         # truncate the string to the 16384 token limit
-        csv_content = csv_content[:16384]
+        little_csv = csv_content[:16384]
 
-        API_KEY = os.environ.get('PPLX_API_KEY')
         messages = [
             {
                 "role": "system",
@@ -39,11 +39,11 @@ class Transformer:
             },
             {
                 "role": "user",
-                "content": csv_content,
+                "content": little_csv,
             },
         ]
 
-        client = OpenAI(api_key=API_KEY, base_url="https://api.perplexity.ai")
+        client = OpenAI(api_key=self.API_KEY, base_url="https://api.perplexity.ai")
 
         stream = false
         if stream:

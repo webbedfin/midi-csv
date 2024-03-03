@@ -1,5 +1,5 @@
-import mido
 from collections import defaultdict
+import mido
 
 class Analyzer:
     """
