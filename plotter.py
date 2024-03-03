@@ -4,6 +4,7 @@ class Plotter:
     """
     A class used to plot chord and note histograms.
     """
+    @staticmethod
     def plot_chords(self, note_counts, chord_counts):
         """
         Plot chord and note histograms.

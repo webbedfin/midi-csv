@@ -2,6 +2,7 @@ class Transposer:
     """
     A class used to transpose MIDI notes.
     """
+    @staticmethod
     def _transpose_note_in_row(self, row, interval):
         """
         Transpose a note in a row by a given interval.
@@ -15,6 +16,7 @@ class Transposer:
             row = ", ".join(parts)
         return row
 
+    @staticmethod
     def transpose(self, csv_data, interval):
         """
         Transpose all notes in a CSV data by a given interval.

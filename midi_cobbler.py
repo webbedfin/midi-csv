@@ -37,8 +37,9 @@ conv = Converter(args.input_file,
                 args.output_file,
                 args.semitones)
 
+note_counts, chord_counts = Analyzer.midi_chords(args.input_file)
+
 if args.plot:
-    note_counts, chord_counts = Analyzer.midi_chords(args.input_file)
     print(f"note counts: {note_counts}   chord counts: {chord_counts}")
     Plotter.plot_chords(note_counts, chord_counts)
 
@@ -50,7 +51,7 @@ try:
     elif args.conv_mode == "loop":
         conv.midi_loopback()
     elif args.conv_mode == "xform":
-        Transformer.pplx_process(conv.midi_to_csv(), Analyzer.midi_chords(args.input_file))
+        Transformer.pplx_process(conv.midi_to_csv(), note_counts, chord_counts)
     else:
         print("Invalid mode")
         sys.exit(1)
