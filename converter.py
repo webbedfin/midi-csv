@@ -15,8 +15,9 @@ class Converter:
         self.semitones = semitones
         self.output_file = output_file
         self.transposer = Transposer()
-        self.analyzer = Analyzer()
-        self.plotter = Plotter()
+
+        self.ENCODINGS = ["utf-8", "utf-8-sig", "iso-8859-1", "latin1", "cp1252"]
+        self.encoding = self.ENCODINGS[0]
 
     def midi_to_csv(self):
         """
@@ -33,14 +34,14 @@ class Converter:
         """
         csv_string = pm.midi_to_csv(self.input_file)
         transposed_csv = self.transposer.transpose(csv_string, self.semitones)
-        with open(self.output_file, "w", encoding=self.transposer.ENCODING) as f:
+        with open(self.output_file, "w", encoding=self.encoding) as f:
             f.writelines(transposed_csv)
             
     def csv_to_midi_transpose(self):
         """
         Convert CSV to MIDI and transpose it.
         """
-        with open(self.input_file, "r", encoding=self.transposer.ENCODING) as f:
+        with open(self.input_file, "r", encoding=self.ENCODING) as f:
             csv_data = f.readlines()   
         transposed_csv = self.transposer.transpose(csv_data, self.semitones)
         midi = pm.csv_to_midi(transposed_csv)

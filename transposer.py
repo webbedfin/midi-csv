@@ -2,13 +2,6 @@ class Transposer:
     """
     A class used to transpose MIDI notes.
     """
-    def __init__(self):
-        """
-        Initialize the Transposer with a list of possible encodings.
-        """
-        self.encodings = ["utf-8", "utf-8-sig", "iso-8859-1", "latin1", "cp1252"]
-        self.ENCODING = self.encodings[0]
-
     def _transpose_note_in_row(self, row, interval):
         """
         Transpose a note in a row by a given interval.
