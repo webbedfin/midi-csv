@@ -2,13 +2,15 @@
 A class to make pplx API calls 
 """
 import sys
+import os
 from openai import OpenAI
 
 class Transformer:
-    __init__(self):
-        self.API_KEY = os.environ.get('PPLX_API_KEY')
+    def __init__(self):
+       self.API_KEY = os.environ.get('PPLX_API_KEY')
     
-    def pplx_process(self, csv_content):
+    def pplx_process(self, csv_content, harmonic_analysis):
+        note_counts, chord_counts = harmonic_analysis
 
         # truncate the string to the 16384 token limit
         little_csv = csv_content[:16384]
@@ -35,12 +37,28 @@ class Transformer:
                     "Many MIDI files have issues with them that prevent py_midicsv from converting"
                     "from CSV format back to MIDI format. If you encounter any of these issues,"
                     "try your best to fix the error. If you cannot, then alert me."
+                    "Hold your analysis until I indicate I have finished sending you the data."
                 ),
             },
             {
                 "role": "user",
-                "content": little_csv,
+                "content": "here is the CSV-formatted MIDI data: "
+                    little_csv
             },
+            {
+                "role": "user",
+                "content": "here is a tuple of python dictionaries which contain a rudimentary harmonic"
+                    "analysis that you may want to use a reference to supplement your understanding"
+                    "of the MIDI data. The first dictionary contains a count of notes played,"
+                    "and the second dictionary contains a count of chords played."
+                    "Note that the chord names are crude and are simply the names of notes present detected"
+                    "one one time. They are not necessarily the actual chords or particular inverions played: "
+                    harmonic_analysis,
+            },
+            {
+                "role": "user",
+                "content": "I have finished sending you the data. Please give me your analysis now."
+            },        
         ]
 
         client = OpenAI(api_key=self.API_KEY, base_url="https://api.perplexity.ai")
