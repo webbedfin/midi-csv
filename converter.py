@@ -18,7 +18,7 @@ class Converter:
         self.analyzer = Analyzer()
         self.plotter = Plotter()
 
-    def _midi_to_csv_transpose(self):
+    def midi_to_csv_transpose(self):
         """
         Convert MIDI to CSV and transpose it.
         """
@@ -27,7 +27,7 @@ class Converter:
         with open(self.output_file, "w", encoding=self.transposer.ENCODING) as f:
             f.writelines(transposed_csv)
 
-    def _csv_to_midi_transpose(self):
+    def csv_to_midi_transpose(self):
         """
         Convert CSV to MIDI and transpose it.
         """
@@ -38,7 +38,7 @@ class Converter:
         with open(self.output_file, "wb") as midi_file:
             pm.FileWriter(midi_file).write(midi)
 
-    def _midi_loopback(self):
+    def midi_loopback(self):
         """
         Perform a loopback test from MIDI to MIDI.
         """

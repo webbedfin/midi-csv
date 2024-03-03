@@ -1,3 +1,6 @@
+import mido
+from collections import defaultdict
+
 class Analyzer:
     """
     A class used to analyze chords from a MIDI file.

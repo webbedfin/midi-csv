@@ -9,12 +9,10 @@ Can also loopback test .mid to .mid
 import sys
 import os
 import argparse
-from collections import defaultdict
 
-import mido
 from openai import OpenAI
 from converter import Converter
-from transformer import Transformers
+from transformer import Transformer
 
 def midi_csv_convert(self, conv_mode, plot=False):
     """
@@ -55,9 +53,26 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    if args.conv_mode == "xform":
-        Transformer.process(args.input_file)
-    else:
-        Converter(args.input_file,
+    conv = Converter(args.input_file,
                   args.output_file,
-                  args.semitones).midi_csv_convert(args.conv_mode, args.plot)
+                  args.semitones)
+
+    try:
+        if args.conv_mode == "mid":
+            conv.midi_to_csv_transpose()
+        elif args.conv_mode == "csv":
+            conv.csv_to_midi_transpose()
+        elif args.conv_mode == "loop":
+            conv.midi_loopback()
+        elif args.conv_mode == "xform":
+            Transformer.process(args.input_file)
+        else:
+            print("Invalid mode")
+            sys.exit(1)
+    except Exception:
+        print("x")
+    
+    if args.plot:
+        note_counts, chord_counts = self.analyzer.analyze_chords(self.input_file)
+        print(f"note counts: {note_counts}   chord counts: {chord_counts}")
+        self.plotter.plot_chords(note_counts, chord_counts)

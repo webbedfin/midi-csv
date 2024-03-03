@@ -27,3 +27,4 @@ class Transposer:
         Transpose all notes in a CSV data by a given interval.
         """
         return [self._transpose_note_in_row(row, interval) for row in csv_data]
+    
