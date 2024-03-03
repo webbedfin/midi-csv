@@ -1,14 +1,13 @@
+import sys
+
+from openai import OpenAI
+import py_midicsv as pm
+
 class Transformer:
-    def process(midi_path):
+    def pplx_process(csv_content):
         """
         A class to make pplx API calls 
         """
-
-        # Load the MIDI file and parse it into CSV format
-        csv_string = pm.midi_to_csv(midi_path)
-
-        # Convert the CSV output into a single string
-        csv_content = "".join(csv_string)
 
         # truncate the string to the 16384 token limit
         csv_content = csv_content[:16384]
@@ -20,7 +19,7 @@ class Transformer:
                 "content": (
                     "You are an artificial intelligence assistant and you are an expert"
                     "in all things MIDI, including the CSV format that the python library"
-                    "py_midicsv uses, as that is what we shall be using."
+                    "py_midicsv works with, as that is what we shall be using."
                     "I'm going to want you to analyze CSV representations of MIDI files and"
                     "reflect on what you know about how note on and off works to detmermine"
                     "the length of the notes and the chords that are being played."
@@ -33,6 +32,9 @@ class Transformer:
                     "concerns and curiosities should be noted as well. For technical issues"
                     "that you think are irrelevant, you can ignore them but note at the end"
                     "if you find more than 5 or so."
+                    "Many MIDI files have issues with them that prevent py_midicsv from converting"
+                    "from CSV format back to MIDI format. If you encounter any of these issues,"
+                    "try your best to fix the error. If you cannot, then alert me."
                 ),
             },
             {
@@ -43,18 +45,25 @@ class Transformer:
 
         client = OpenAI(api_key=API_KEY, base_url="https://api.perplexity.ai")
 
-        # For chat completion without streaming
-        response = client.chat.completions.create(
-            model="mistral-7b-instruct",
-            messages=messages,
-        )
-        print(response.choices[0].message.content)
+        stream = false
+        if stream:
+            sys.exit(1)
 
-        # For chat completion with streaming
-        # response_stream = client.chat.completions.create(
-        #     model="mistral-7b-instruct",
-        #     messages=messages,
-        #     stream=True,
-        # )
-        # for response in response_stream:
-        #     print(response)
+            # For chat completion with streaming
+            response_stream = client.chat.completions.create(
+                model="mistral-7b-instruct",
+                messages=messages,
+                stream=True,
+            )
+            for response in response_stream:
+                 print(response)
+
+        else:
+            # For chat completion without streaming
+            response = client.chat.completions.create(
+                model="mistral-7b-instruct",
+                messages=messages,
+            )
+            print(response.choices[0].message.content)
+
+        

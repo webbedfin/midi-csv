@@ -12,7 +12,7 @@ class Analyzer:
         note_names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
         return note_names[note_number % 12] # + str(note_number // 12 - 1)
 
-    def analyze_chords(self, midi_path):
+    def midi_chords(self, midi_path):
         """
         Analyze chords from a MIDI file.
         """

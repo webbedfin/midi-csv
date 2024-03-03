@@ -18,6 +18,15 @@ class Converter:
         self.analyzer = Analyzer()
         self.plotter = Plotter()
 
+    def midi_to_csv(self):
+        """
+        Convert MIDI to CSV and return the CSV string
+        """
+        csv_string = pm.midi_to_csv(self.input_file)
+            
+        # Convert the CSV output into a single string
+        return "".join(csv_string)    
+
     def midi_to_csv_transpose(self):
         """
         Convert MIDI to CSV and transpose it.
@@ -26,7 +35,7 @@ class Converter:
         transposed_csv = self.transposer.transpose(csv_string, self.semitones)
         with open(self.output_file, "w", encoding=self.transposer.ENCODING) as f:
             f.writelines(transposed_csv)
-
+            
     def csv_to_midi_transpose(self):
         """
         Convert CSV to MIDI and transpose it.
