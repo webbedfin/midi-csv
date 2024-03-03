@@ -10,250 +10,33 @@ import sys
 import os
 import argparse
 from collections import defaultdict
-import matplotlib.pyplot as plt
-import py_midicsv as pm
+
 import mido
 from openai import OpenAI
+from converter import Converter
+from transformer import Transformers
 
-class Converter:
+def midi_csv_convert(self, conv_mode, plot=False):
     """
-    A class used to convert MIDI files to CSV and vice versa, with optional pitch transposition.
+    Convert MIDI to CSV or CSV to MIDI based on the conversion mode.
     """
-    def __init__(self, input_file, semitones=0, output_file="loopback.mid"):
-        """
-        Initialize the Converter with input file, semitones for transposition, and output file.
-        """
-        self.input_file = input_file
-        self.semitones = semitones
-        self.output_file = output_file
-        self.transposer = Transposer()
-        self.analyzer = Analyzer()
-        self.plotter = Plotter()
+    modes = {"mid": self._midi_to_csv_transpose,
+                "csv": self._csv_to_midi_transpose, 
+                "loop": self._midi_loopback}
+    process = modes.get(conv_mode)
+    if process is None:
+        print("Invalid input type.")
+        sys.exit(1)
 
-    def _midi_to_csv_transpose(self):
-        """
-        Convert MIDI to CSV and transpose it.
-        """
-        csv_string = pm.midi_to_csv(self.input_file)
-        transposed_csv = self.transposer.transpose(csv_string, self.semitones)
-        with open(self.output_file, "w", encoding=self.transposer.ENCODING) as f:
-            f.writelines(transposed_csv)
-
-    def _csv_to_midi_transpose(self):
-        """
-        Convert CSV to MIDI and transpose it.
-        """
-        with open(self.input_file, "r", encoding=self.transposer.ENCODING) as f:
-            csv_data = f.readlines()   
-        transposed_csv = self.transposer.transpose(csv_data, self.semitones)
-        midi = pm.csv_to_midi(transposed_csv)
-        with open(self.output_file, "wb") as midi_file:
-            pm.FileWriter(midi_file).write(midi)
-
-    def _midi_loopback(self):
-        """
-        Perform a loopback test from MIDI to MIDI.
-        """
-        csv = pm.midi_to_csv(self.input_file)
-        midi = pm.csv_to_midi(csv)
-        with open(self.output_file, "wb") as midi_file:
-            pm.FileWriter(midi_file).write(midi)
-
-    def midi_csv_convert(self, conv_mode, plot=False):
-        """
-        Convert MIDI to CSV or CSV to MIDI based on the conversion mode.
-        """
-        modes = {"mid": self._midi_to_csv_transpose,
-                 "csv": self._csv_to_midi_transpose, 
-                 "loop": self._midi_loopback}
-        process = modes.get(conv_mode)
-        if process is None:
-            print("Invalid input type.")
-            sys.exit(1)
-
-        try:
-            process()
-        except Exception:
-            print("x")
-        
-        if plot:
-            note_counts, chord_counts = self.analyzer.analyze_chords(self.input_file)
-            print(f"note counts: {note_counts}   chord counts: {chord_counts}")
-            self.plotter.plot_chords(note_counts, chord_counts)
-
-
-
-class Transposer:
-    """
-    A class used to transpose MIDI notes.
-    """
-    def __init__(self):
-        """
-        Initialize the Transposer with a list of possible encodings.
-        """
-        self.encodings = ["utf-8", "utf-8-sig", "iso-8859-1", "latin1", "cp1252"]
-        self.ENCODING = self.encodings[0]
-
-    def _transpose_note_in_row(self, row, interval):
-        """
-        Transpose a note in a row by a given interval.
-        """
-        parts = row.strip().split(", ")
-        if "Note_on_c" in row or "Note_off_c" in row:
-            note = int(parts[4])
-            min_midi, max_midi = 0, 127  # Ensure note is within MIDI range
-            transposed_note = min(max(min_midi, note + interval), max_midi)
-            parts[4] = str(transposed_note)
-            row = ", ".join(parts)
-        return row
-
-    def transpose(self, csv_data, interval):
-        """
-        Transpose all notes in a CSV data by a given interval.
-        """
-        return [self._transpose_note_in_row(row, interval) for row in csv_data]
-
-class Analyzer:
-    """
-    A class used to analyze chords from a MIDI file.
-    """
-    def _note_number_to_name(self, note_number):
-        """
-        Convert MIDI note numbers to note names.
-        """
-        note_names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-        return note_names[note_number % 12] # + str(note_number // 12 - 1)
-
-    def analyze_chords(self, midi_path):
-        """
-        Analyze chords from a MIDI file.
-        """
-        mid = mido.MidiFile(midi_path)
-        note_counts = defaultdict(int)
-        chord_counts = defaultdict(int)
-        total_notes = 0
-        total_chords = 0
-        
-        # Set to hold currently active notes
-        active_notes = set()
-
-        # chord definition
-        chord_note_count = [3, 4]
-
-        # Process each track in the MIDI file
-        for track in mid.tracks:
-            for msg in track:
-                if msg.type == 'note_on' and msg.velocity > 0:
-                    # Note on
-                    active_notes.add(msg.note)
-                elif (msg.type == 'note_off') or (msg.type == 'note_on' and msg.velocity == 0):
-                    # Note off
-                    if msg.note in active_notes:
-                        note_counts[self._note_number_to_name(msg.note)] += 1
-                        total_notes += 1
-                        active_notes.remove(msg.note)
-                        # When a note is released, check if there are any other notes being played
-                        if active_notes:
-                            # Sort unique notes to ensure consistent chord naming
-                            note_names = [self._note_number_to_name(note) for note in active_notes]
-                            # Convert to set to remove duplicates, then sort
-                            unique_note_names = sorted(set(note_names))  
-                            chord = '+'.join(unique_note_names)
-                            if len(unique_note_names) in chord_note_count:
-                                chord_counts[chord] += 1
-                                total_chords += 1
-
-        return note_counts, chord_counts
-
-
-class Plotter:
-    """
-    A class used to plot chord and note histograms.
-    """
-    def plot_chords(self, note_counts, chord_counts):
-        """
-        Plot chord and note histograms.
-        """
-        max_chord_count = max(chord_counts.values())
-
-        # Now we have the counts of each chord, we can plot a histogram
-        histogram_count = max_chord_count / 3
-        chord_names = [chord for chord in chord_counts.keys() if chord_counts[chord] >= histogram_count]
-        chord_values = [chord_counts[chord] for chord in chord_names if chord_counts[chord] >= histogram_count]
-
-        _, axs = plt.subplots(2)
-
-        axs[0].bar(chord_names, chord_values)
-        axs[0].set_title('Chord Histogram')
-
-        note_names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-        note_values = [note_counts[note] for note in note_names]
-
-        axs[1].bar(note_names, note_values)
-        axs[1].set_title('Note Histogram')
-        plt.tight_layout()
-        plt.show()
-
-class Transformer:
-    def process(midi_path):
-        """
-        A class to make pplx API calls 
-        """
-
-        # Load the MIDI file and parse it into CSV format
-        csv_string = pm.midi_to_csv(midi_path)
-
-        # Convert the CSV output into a single string
-        csv_content = "".join(csv_string)
-
-        # truncate the string to the 16384 token limit
-        csv_content = csv_content[:16384]
-
-        API_KEY = os.environ.get('PPLX_API_KEY')
-        messages = [
-            {
-                "role": "system",
-                "content": (
-                    "You are an artificial intelligence assistant and you are an expert"
-                    "in all things MIDI, including the CSV format that the python library"
-                    "py_midicsv uses, as that is what we shall be using."
-                    "I'm going to want you to analyze CSV representations of MIDI files and"
-                    "reflect on what you know about how note on and off works to detmermine"
-                    "the length of the notes and the chords that are being played."
-                    "Take a first pass through to get a feel how the chords create a harmonic"
-                    "structure and then take a second pass to determine the melody."
-                    "As you do this, note where you think the song sections are and name then"
-                    "Try to determine the genre of the song."
-                    "After you have done this, I want you to report on your observations."
-                    "I am more interested in purely musical observations, but technical"
-                    "concerns and curiosities should be noted as well. For technical issues"
-                    "that you think are irrelevant, you can ignore them but note at the end"
-                    "if you find more than 5 or so."
-                ),
-            },
-            {
-                "role": "user",
-                "content": csv_content,
-            },
-        ]
-
-        client = OpenAI(api_key=API_KEY, base_url="https://api.perplexity.ai")
-
-        # For chat completion without streaming
-        response = client.chat.completions.create(
-            model="mistral-7b-instruct",
-            messages=messages,
-        )
-        print(response.choices[0].message.content)
-
-        # For chat completion with streaming
-        # response_stream = client.chat.completions.create(
-        #     model="mistral-7b-instruct",
-        #     messages=messages,
-        #     stream=True,
-        # )
-        # for response in response_stream:
-        #     print(response)
+    try:
+        process()
+    except Exception:
+        print("x")
+    
+    if plot:
+        note_counts, chord_counts = self.analyzer.analyze_chords(self.input_file)
+        print(f"note counts: {note_counts}   chord counts: {chord_counts}")
+        self.plotter.plot_chords(note_counts, chord_counts)
 
 
 if __name__ == "__main__":
