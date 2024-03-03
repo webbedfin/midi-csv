@@ -29,8 +29,8 @@ class Transformer:
                     "structure and then take a second pass to determine the melody."
                     "As you do this, note where you think the song sections are and name then"
                     "Try to determine the genre of the song."
-                    "After you have done this, I want you to report on your observations."
-                    "I am more interested in purely musical observations, but technical"
+                    "I am interested in your analysis, observations and insights."
+                    "I am mostly interested in purely musical observations, but technical"
                     "concerns and curiosities should be noted as well. For technical issues"
                     "that you think are irrelevant, you can ignore them but note at the end"
                     "if you find more than 5 or so."
@@ -42,8 +42,7 @@ class Transformer:
             },
             {
                 "role": "user",
-                "content": "here is the CSV-formatted MIDI data: "
-                    little_csv
+                "content": "here is the CSV-formatted MIDI data: " + little_csv,
             },
             {
                 "role": "user",
@@ -53,7 +52,7 @@ class Transformer:
                     "and the second dictionary contains a count of chords played."
                     "Note that the chord names are crude and are simply the names of notes present detected"
                     "one one time. They are not necessarily the actual chords or particular inverions played: "
-                    harmonic_analysis,
+                    + harmonic_analysis,
             },
             {
                 "role": "user",
