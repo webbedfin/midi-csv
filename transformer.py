@@ -46,17 +46,17 @@ class Transformer:
                 "role": "user",
                 "content": "here is an additional tuple of python dictionaries which contain a rudimentary harmonic"
                     "analysis that you may want to use a reference to supplement your understanding"
-                    "of the MIDI data. They were created with the python library pymid The first dictionary contains a count of notes played,"
+                    "of the MIDI data. They were created with the python library mido. The first dictionary contains a count of notes played,"
                     "and the second dictionary contains a count of chords played."
-                    "Note that the chord names are untraditional and are instead are the names of all of the notes present. this means that each chord will have very precise voicings. Any patterns you notice emerging from your analysis of how these chords are used and how they develop should be prominent in your analysis. "
+                    "Note that the chord names are untraditional and are instead are the collection of the names of all of the notes present. this means that each chord will have very precise voicings. Any patterns you notice emerging from your analysis of how these chords are used and how they develop should be prominent in your analysis. "
 "Make sure you understand the rhythmic structure well and take that into account. Rhythm is very important. "
                     + harmonic_analysis,
             },
             {
                 "role": "user",
-                "content": "I have finished sending you the data. Please give me your analysis now. break it up into sections: 1) high level analysis of the piece of music. work section of music by section. Explain its prominent tonal relationships or lack thereof. Discuss intent of sections, emotional impact, usual music analysis that may be taught at a music school. 2) talk about interesting sections you find, chosen by in a way that shows uniqueness, difficulty, or beauty. 3) describe musical ideas inspired by this music I could pursue, ideally written out as short guitar tablature examples. 4) suggest music by other musicians who sound similar
+                "content": "I have finished sending you the data. Please give me your analysis now. break it up into sections: 1) high level analysis of the piece of music. work section of music by section. Explain its likely genre, any prominent tonal relationships or lack thereof. Discuss intent of sections, emotional impact, and traditional music analysis that may be taught at a graduate music school. 2) talk about interesting sections you find, chosen by in a way that shows uniqueness, difficulty, or beauty. 3) describe musical ideas inspired by this music I could pursue, ideally written out as short guitar tablature examples. 4) suggest music by other musicians who sound similar or pursue similar methods. 
 
-Consider advanced musical theory in your analysis, including western tonal or atonal theory, church music, baroque, classical, romantic, impressive, expressionst, post-impressionisn, ragtime, blues, country, bluegrass, jazz, rock, metal, shred, pop, hip hop, EDM, etc. also consider non Western music such as African music, Asian music and music around the world. if you can see close similarities in a piece of music to some very different style point that out."
+Consider advanced musical theory in your analysis, including western tonal or atonal theory, church music, baroque, classical, romantic, high romantic, impressionism, expressionsm, post-impressionisn, ragtime, blues, country, bluegrass, jazz, western swing, rock, microtonality, spectralism, hyperspectralism, stable music, minimalism, soul, funk, thrash, death metal, metal, blues rock, shred, pop, hip hop, EDM, etc. also consider non Western music such as African music, Asian music and music around the world. if you can see close similarities in a piece of music to some very different style point that out."
 
 limit your response to about 500 characters. 
             },        
