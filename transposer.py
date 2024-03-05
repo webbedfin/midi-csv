@@ -16,7 +16,6 @@ class Transposer:
             row = ", ".join(parts)
         return row
 
-    @staticmethod
     def transpose(self, csv_data, interval):
         """
         Transpose all notes in a CSV data by a given interval.
