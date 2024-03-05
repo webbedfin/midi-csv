@@ -6,14 +6,13 @@ class Analyzer:
     A class used to analyze chords from a MIDI file.
     """
     @staticmethod
-    def _note_number_to_name(self, note_number):
+    def _note_number_to_name(note_number):
         """
         Convert MIDI note numbers to note names.
         """
         note_names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
         return note_names[note_number % 12] + str(note_number // 12 - 1)
 
-    @staticmethod
     def midi_chords(self, midi_path):
         """
         Analyze chords from a MIDI file.
