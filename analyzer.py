@@ -11,7 +11,7 @@ class Analyzer:
         Convert MIDI note numbers to note names.
         """
         note_names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-        return note_names[note_number % 12] # + str(note_number // 12 - 1)
+        return note_names[note_number % 12] + str(note_number // 12 - 1)
 
     @staticmethod
     def midi_chords(self, midi_path):
