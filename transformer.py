@@ -18,7 +18,7 @@ class Transformer:
                 "role": "system",
                 "content": (
                     "You are an artificial intelligence assistant and you are an expert"
-                    "in all things MIDI, including the CSV format that the python library"
+                    "in all things MIDI and music, including the CSV format that the python library"
                     "py_midicsv works with, as that is what we shall be using."
                     "I'm going to want you to analyze CSV representations of MIDI files and"
                     "reflect on what you know about how note on and off works to detmermine"
@@ -48,13 +48,14 @@ class Transformer:
                     "analysis that you may want to use a reference to supplement your understanding"
                     "of the MIDI data. The first dictionary contains a count of notes played,"
                     "and the second dictionary contains a count of chords played."
-                    "Note that the chord names are crude and are simply the names of notes present detected"
-                    "one one time. They are not necessarily the actual chords or particular inverions played: "
+                    "Note that the chord names are untraditional and are instead are the names of all of the notes present. this means that each chord will have very precise voicings. Any patterns you notice emerging from your analysis of how these chords are used and how they develop should be prominent in your analysis. "
                     + harmonic_analysis,
             },
             {
                 "role": "user",
-                "content": "I have finished sending you the data. Please give me your analysis now."
+                "content": "I have finished sending you the data. Please give me your analysis now. break it up into sections: 1) high level analysis of the piece of music. work section of music by section. Explain its prominent tonal relationships or lack thereof. Discuss intent of sections, emotional impact, usual music analysis that may be taught at a music school. 2) talk about interesting sections you find, chosen by in a way that shows uniqueness, difficulty, or beauty. 3) describe musical ideas inspired by this music I could pursue, ideally written out as short guitar tablature examples. 4) suggest music by other musicians who sound similar
+
+Consider advanced musical theory in your analysis, including western tonal or atonal theory, jazz, rock, metal, etc. also consider non Western music such as African music, Asian music and music around the world. if you can see close similarities in a piece of music to some very different style point that out."
             },        
         ]
 
