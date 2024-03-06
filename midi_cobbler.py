@@ -15,12 +15,13 @@ from analyzer import Analyzer
 from converter import Converter
 from plotter import Plotter
 from transformer import Transformer
+from transformer_simple import TransformerSimple
 
 VERSION = '0.1.0'
 
 parser = argparse.ArgumentParser(
     description="MidiCobbler: A MIDI file conversion and ML analysis tool.")
-parser.add_argument('conv_mode', type=str,
+parser.add_argument('mode', type=str,
     help="Conversion mode ('mid', 'csv', 'loop', 'xform')")
 parser.add_argument('input_file', type=str,
     help="Input file")
@@ -37,25 +38,27 @@ conv = Converter(args.input_file,
                 args.output_file,
                 args.semitones)
 
-note_counts, chord_counts = Analyzer.midi_chords(args.input_file)
+note_counts, chord_counts = Analyzer().midi_chords(args.input_file)
 
 if args.plot:
     print(f"note counts: {note_counts}   chord counts: {chord_counts}")
     Plotter.plot_chords(note_counts, chord_counts)
 
 try:
-    if args.conv_mode == "mid":
+    if args.mode == "mid":
         conv.midi_to_csv_transpose()
-    elif args.conv_mode == "csv":
+    elif args.mode == "csv":
         conv.csv_to_midi_transpose()
-    elif args.conv_mode == "loop":
+    elif args.mode == "loop":
         conv.midi_loopback()
-    elif args.conv_mode == "xform":
-        Transformer.pplx_process(conv.midi_to_csv(), note_counts, chord_counts)
+    elif args.mode == "xform":
+        Transformer().pplx_process(conv.midi_to_csv(), note_counts, chord_counts)
+        #midi_csv = conv.midi_to_csv()
+        #TransformerSimple().pplx_process(midi_csv)
     else:
         print("Invalid mode")
         sys.exit(1)
-except Exception:
+except Exception as e:
     print(f"An error occurred: {e}")
     #print("x")
 
