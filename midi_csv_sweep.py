@@ -18,10 +18,10 @@ def sweep_directory(directory: str):
         for file in files:
             filepath = os.path.join(root, file)
             try:
-                Converter(filepath, 0, "loopback.mid").midi_csv_convert("loop")
-                #Converter(filepath, 0, file+".csv").midi_csv_convert("mid")
-                #Converter(filepath, 0, file+".mid").midi_csv_convert("csv")
-            except Exception:
+                Converter(filepath).midi_csv_convert("loop")
+                #Converter(filepath, file+".csv").midi_csv_convert("mid")
+                #Converter(filepath, file+".mid").midi_csv_convert("csv")
+            except Exception:   
                 #print(f"An error occurred: {e}")
                 fails += 1 
             else:
