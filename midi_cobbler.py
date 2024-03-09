@@ -15,7 +15,6 @@ from analyzer import Analyzer
 from converter import Converter
 from plotter import Plotter
 from transformer import Transformer
-from transformer_simple import TransformerSimple
 
 VERSION = '0.1.0'
 
