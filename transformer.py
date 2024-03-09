@@ -11,7 +11,8 @@ class Transformer:
     
     def pplx_process(self, csv_content, note_counts, chord_counts):
         # truncate the string to the 16384 token limit
-        little_csv = csv_content[:16384]
+        csv1 = csv_content[:16384]
+        csv2 = csv_content[16384:32768]
 
         messages = [
             {
@@ -20,8 +21,12 @@ class Transformer:
                     "You are an artificial intelligence assistant and you are an expert"
                     "in music theory and MIDI, including the CSV format that the python library"
                     "py_midicsv works with, as that is what we shall be working with."
+                    "carefully, step-by-stepw, convert this information into a timeline that"
                     "I'm going to want you to analyze a CSV representations of a MIDI file and"
-                    "carefully, step-by-step, interpret what each note and chord mean in relation to the entire piece of music. Use your MIDI expertise regarding the function of note on and note off to detmermine"
+                    "can be used with music theory. This will be a CSV-like."
+                    "When you have this, interpret what each note and chord mean in relation"
+                    "those those preceding and those following. Use your MIDI expertise"
+                    "on how MIDI note on and note off messages mean to detmermine"
                     "the durations of the notes and the chords that are being played."
                     "Take a first pass and go through note by note to get a feel for the"
                     "rhythm and how it changes, and for how the chords (or lack thereof) create a"
@@ -43,26 +48,40 @@ class Transformer:
                     "If you or if you cannot, then alert me. Hold your analysis until I indicate"
                     "I indicate that I have finished sending you relevant data."
                     "Break up your analysis into sections:"
-                    "1) high level analysis of the piece of music. work section of music by section. Explain its"
+                    "1) high level analysis of the piece of music."
+                    "Discuss its tempo, key and chord changes. Talk about melody, harmony, and rhythm."
                     "likely genre, any prominent tonal relationships or lack thereof. Discuss intent of sections, likely emotional"
-                    "impact, and traditional music analysis that may be taught at a graduate music school. Elaborate with as much traditional Western music theory analysis as you can. 2) talk about"
+                    "impact, and traditional music analysis that may be taught at a graduate music school."
+                    "Elaborate with as much traditional Western music theory analysis as you can."
+                    "Tell me the bpm, and make sure convert it to beats per minute. If bpm is less than"
+                    "10 or more than 500, then it is likely an error. If you find an error, try to fix it."
+                    "2) talk about"
                     "interesting sections you find, chosen by in a way that shows uniqueness, difficulty, or beauty."
                     "3) describe musical ideas inspired by this music I could pursue, ideally written out as short guitar"
                     "tablature examples. 4) suggest music by other musicians who sound similar or pursue similar methods."
-                    #"5) discuss any technical issues you encountered and how you resolved them."
-                    #"6) Consider non Western music such as African music, Asian music and music around the world."
+                    "5) discuss any technical issues you encountered and how you resolved them."
+                    "6) Consider non Western music such as African music, Asian music and music around the world."
                     "If you notice close similarities in a piece of music to some very different style point that out."
                     "Consider advanced musical theory in your analysis, including western tonal or atonal theory, church music," 
                     "baroque, classical, romantic, high romantic, impressionism, expressionsm, post-impressionisn, ragtime, blues,"
                     "country, bluegrass, jazz, western swing, rock, microtonality, spectralism, hyperspectralism, stable music,"
                     "minimalism, soul, funk, thrash, death metal, metal, blues rock, shred, pop, hip hop, EDM, etc."
-                    "I have finished sending you the data. Be verbose, creative, and give me your analysis now."
+                    "When I have sent you the data give me your analysis."
                   ),
             },     
             {   
                 "role": "user",
-                "content": "Here is the CSV-formatted MIDI data: " + little_csv,
+                "content": "Here is part 1 of 2 of the CSV-formatted MIDI data: " + csv1
             },
+            #{   
+            #    "role": "user",
+            #    "content": "Here is part 2 of 2 of the CSV-formatted MIDI data: " + csv2
+            #},
+            #{   
+            #    "role": "assistant",
+            #    "content": "I have finished sending you the data. Be verbose, creative, and give me your analysis now."
+            #},
+
             # {
             #     "role": "user",
             #     "content": (
@@ -86,13 +105,18 @@ class Transformer:
 
         client = OpenAI(api_key=self.API_KEY, base_url="https://api.perplexity.ai")
 
+        ml_model = ["sonar-medium-online",
+                "mixtral-8x7b-instruct",
+                "mistral-7b-instruct"]
+        ml_model_idx = 1
+
         stream = False
         if stream:
             sys.exit(1)
 
             # For chat completion with streaming
             response_stream = client.chat.completions.create(
-                model="mistral-7b-instruct",
+                model=ml_model[ml_model_idx],
                 messages=messages,
                 stream=True,
             )
@@ -102,7 +126,7 @@ class Transformer:
         else:
             # For chat completion without streaming
             response = client.chat.completions.create(
-                model="mistral-7b-instruct",
+                model=ml_model[ml_model_idx],
                 messages=messages,
             )
             print(response.choices[0].message.content)
