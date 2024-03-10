@@ -4,11 +4,47 @@ A class to make pplx API calls
 import sys
 import os
 from openai import OpenAI
+import anthropic
 
 class Transformer:
     def __init__(self):
        self.API_KEY = os.environ.get('PPLX_API_KEY')
     
+    def claude_process(self, csv_content, note_counts, chord_counts):
+
+
+
+client = anthropic.Anthropic(api_key=os.environ.get('ANTHROPIC_API_KEY')
+
+# First question
+print("Question 1:")
+message = client.messages.create(
+    model="claude-3-opus-20240229",
+    max_tokens=1000, 
+    temperature=0.0,
+    messages=[
+        {"role": "user", "content": "What is the capital of France?"}
+    ]
+)
+print(message.content)
+
+# Second question 
+print("\nQuestion 2:")
+message = client.messages.create(
+    model="claude-3-opus-20240229",
+    max_tokens=1000,
+    temperature=0.0, 
+    messages=[
+        {"role": "user", "content": "What is the largest planet in our solar system?"}
+    ]
+)
+print(message.content)
+
+
+
+
+
+
     def pplx_process(self, csv_content, note_counts, chord_counts):
         # truncate the string to the 16384 token limit
         csv1 = csv_content[:16384]
