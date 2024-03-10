@@ -6,44 +6,89 @@ import os
 from openai import OpenAI
 import anthropic
 
+propmt1 = (
+    "You are an artificial intelligence assistant and you are an expert"
+    "in music theory and MIDI, including the CSV format that the python library"
+    "py_midicsv works with, as that is what we shall be working with."
+    "carefully, step-by-stepw, convert this information into a timeline that"
+    "I'm going to want you to analyze a CSV representations of a MIDI file and"
+    "can be used with music theory. This will be a CSV-like."
+    "When you have this, interpret what each note and chord mean in relation"
+    "those those preceding and those following. Use your MIDI expertise"
+    "on how MIDI note on and note off messages mean to detmermine"
+    "the durations of the notes and the chords that are being played."
+    "Take a first pass and go through note by note to get a feel for the"
+    "rhythm and how it changes, and for how the chords (or lack thereof) create a"
+    "harmonic structure. Then, take a second pass to determine the melody (or "
+    "lack thereof). From what you know of various music theoretical systems look"
+    "for anything interesting or novel as you reexamine the music"
+    "and include this in your report."
+    "As you do this, note where you think the song sections are and name then."
+    "If you can't, it is ok to simply use names like 'A' or 'B'" 
+    "Try to determine the genre and other extended information about the piece"
+    "of music, such cultural influences, approximate age, origin, etc."
+    "I am interested in your analysis, observations and insights."
+    "I am mostly interested in musical observations, but technical"
+    "concerns and curiosities should be noted as well. For technical issues"
+    "that you think are irrelevant, you can ignore them but note at the end"
+    "if you find more than 5 or so. Many MIDI files have issues with them that"
+    "prevent py_midicsv from converting from CSV format back to MIDI format."
+    "If you encounter any of these issues, try your best to fix the error."
+    "If you or if you cannot, then alert me. Hold your analysis until I indicate"
+    "I indicate that I have finished sending you relevant data."
+    "Break up your analysis into sections:"
+    "1) high level analysis of the piece of music."
+    "Discuss its tempo, key and chord changes. Talk about melody, harmony, and rhythm."
+    "likely genre, any prominent tonal relationships or lack thereof. Discuss intent of sections, likely emotional"
+    "impact, and traditional music analysis that may be taught at a graduate music school."
+    "Elaborate with as much traditional Western music theory analysis as you can."
+    "Tell me the bpm, and make sure convert it to beats per minute. If bpm is less than"
+    "10 or more than 500, then it is likely an error. If you find an error, try to fix it."
+    "2) talk about"
+    "interesting sections you find, chosen by in a way that shows uniqueness, difficulty, or beauty."
+    "3) describe musical ideas inspired by this music I could pursue, ideally written out as short guitar"
+    "tablature examples. 4) suggest music by other musicians who sound similar or pursue similar methods."
+    "5) discuss any technical issues you encountered and how you resolved them."
+    "6) Consider non Western music such as African music, Asian music and music around the world."
+    "If you notice close similarities in a piece of music to some very different style point that out."
+    "Consider advanced musical theory in your analysis, including western tonal or atonal theory, church music," 
+    "baroque, classical, romantic, high romantic, impressionism, expressionsm, post-impressionisn, ragtime, blues,"
+    "country, bluegrass, jazz, western swing, rock, microtonality, spectralism, hyperspectralism, stable music,"
+    "minimalism, soul, funk, thrash, death metal, metal, blues rock, shred, pop, hip hop, EDM, etc."
+    "When I have sent you the data give me your analysis."
+    )
+
+
 class Transformer:
     def __init__(self):
        self.API_KEY = os.environ.get('PPLX_API_KEY')
     
     def claude_process(self, csv_content, note_counts, chord_counts):
+        client = anthropic.Anthropic(api_key=os.environ.get('ANTHROPIC_API_KEY')
 
+        # First question
+        print("Question 1:")
+        message = client.messages.create(
+            model="claude-3-opus-20240229",
+            max_tokens=1000, 
+            temperature=0.0,
+            messages=[
+                {"role": "user", "content": prompt1}
+            ]
+        )
+        print(message.content)
 
-
-client = anthropic.Anthropic(api_key=os.environ.get('ANTHROPIC_API_KEY')
-
-# First question
-print("Question 1:")
-message = client.messages.create(
-    model="claude-3-opus-20240229",
-    max_tokens=1000, 
-    temperature=0.0,
-    messages=[
-        {"role": "user", "content": "What is the capital of France?"}
-    ]
-)
-print(message.content)
-
-# Second question 
-print("\nQuestion 2:")
-message = client.messages.create(
-    model="claude-3-opus-20240229",
-    max_tokens=1000,
-    temperature=0.0, 
-    messages=[
-        {"role": "user", "content": "What is the largest planet in our solar system?"}
-    ]
-)
-print(message.content)
-
-
-
-
-
+        # Second question 
+        # print("\nQuestion 2:")
+        # message = client.messages.create(
+        #     model="claude-3-opus-20240229",
+        #     max_tokens=1000,
+        #     temperature=0.0, 
+        #     messages=[
+        #         {"role": "user", "content": "What is the largest planet in our solar system?"}
+        #     ]
+        # )
+        # print(message.content)
 
     def pplx_process(self, csv_content, note_counts, chord_counts):
         # truncate the string to the 16384 token limit
@@ -53,57 +98,7 @@ print(message.content)
         messages = [
             {
                 "role": "system",
-                "content": (
-                    "You are an artificial intelligence assistant and you are an expert"
-                    "in music theory and MIDI, including the CSV format that the python library"
-                    "py_midicsv works with, as that is what we shall be working with."
-                    "carefully, step-by-stepw, convert this information into a timeline that"
-                    "I'm going to want you to analyze a CSV representations of a MIDI file and"
-                    "can be used with music theory. This will be a CSV-like."
-                    "When you have this, interpret what each note and chord mean in relation"
-                    "those those preceding and those following. Use your MIDI expertise"
-                    "on how MIDI note on and note off messages mean to detmermine"
-                    "the durations of the notes and the chords that are being played."
-                    "Take a first pass and go through note by note to get a feel for the"
-                    "rhythm and how it changes, and for how the chords (or lack thereof) create a"
-                    "harmonic structure. Then, take a second pass to determine the melody (or "
-                    "lack thereof). From what you know of various music theoretical systems look"
-                    "for anything interesting or novel as you reexamine the music"
-                    "and include this in your report."
-                    "As you do this, note where you think the song sections are and name then."
-                    "If you can't, it is ok to simply use names like 'A' or 'B'" 
-                    "Try to determine the genre and other extended information about the piece"
-                    "of music, such cultural influences, approximate age, origin, etc."
-                    "I am interested in your analysis, observations and insights."
-                    "I am mostly interested in musical observations, but technical"
-                    "concerns and curiosities should be noted as well. For technical issues"
-                    "that you think are irrelevant, you can ignore them but note at the end"
-                    "if you find more than 5 or so. Many MIDI files have issues with them that"
-                    "prevent py_midicsv from converting from CSV format back to MIDI format."
-                    "If you encounter any of these issues, try your best to fix the error."
-                    "If you or if you cannot, then alert me. Hold your analysis until I indicate"
-                    "I indicate that I have finished sending you relevant data."
-                    "Break up your analysis into sections:"
-                    "1) high level analysis of the piece of music."
-                    "Discuss its tempo, key and chord changes. Talk about melody, harmony, and rhythm."
-                    "likely genre, any prominent tonal relationships or lack thereof. Discuss intent of sections, likely emotional"
-                    "impact, and traditional music analysis that may be taught at a graduate music school."
-                    "Elaborate with as much traditional Western music theory analysis as you can."
-                    "Tell me the bpm, and make sure convert it to beats per minute. If bpm is less than"
-                    "10 or more than 500, then it is likely an error. If you find an error, try to fix it."
-                    "2) talk about"
-                    "interesting sections you find, chosen by in a way that shows uniqueness, difficulty, or beauty."
-                    "3) describe musical ideas inspired by this music I could pursue, ideally written out as short guitar"
-                    "tablature examples. 4) suggest music by other musicians who sound similar or pursue similar methods."
-                    "5) discuss any technical issues you encountered and how you resolved them."
-                    "6) Consider non Western music such as African music, Asian music and music around the world."
-                    "If you notice close similarities in a piece of music to some very different style point that out."
-                    "Consider advanced musical theory in your analysis, including western tonal or atonal theory, church music," 
-                    "baroque, classical, romantic, high romantic, impressionism, expressionsm, post-impressionisn, ragtime, blues,"
-                    "country, bluegrass, jazz, western swing, rock, microtonality, spectralism, hyperspectralism, stable music,"
-                    "minimalism, soul, funk, thrash, death metal, metal, blues rock, shred, pop, hip hop, EDM, etc."
-                    "When I have sent you the data give me your analysis."
-                  ),
+                "content": prompt1,
             },     
             {   
                 "role": "user",
