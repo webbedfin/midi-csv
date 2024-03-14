@@ -72,7 +72,8 @@ class Transformer:
             max_tokens=1000, 
             temperature=0.0,
             messages=[
-                {"role": "user", "content": prompt1}
+                {"role": "system", "content": prompt1},
+                {"role": "user","content": "Here is part 1 of 2 of the CSV-formatted MIDI data: " + csv1}
             ]
         )
         print(message.content)
