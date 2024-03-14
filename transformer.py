@@ -6,7 +6,7 @@ import os
 from openai import OpenAI
 import anthropic
 
-propmt1 = (
+root_prompt = (
     "You are an artificial intelligence assistant and you are an expert"
     "in music theory and MIDI, including the CSV format that the python library"
     "py_midicsv works with, as that is what we shall be working with."
@@ -60,10 +60,11 @@ propmt1 = (
 
 class Transformer:
     def __init__(self):
-       self.API_KEY = os.environ.get('PPLX_API_KEY')
+       self.PPLX_KEY = os.environ.get('PPLX_API_KEY')
+       self.CLAUDE_KEY = os.environ.get('ANTHROPIC_API_KEY')
     
     def claude_process(self, csv_content, note_counts, chord_counts):
-        client = anthropic.Anthropic(api_key=os.environ.get('ANTHROPIC_API_KEY')
+        client = anthropic.Anthropic(api_key=self.CLAUDE_KEY)
 
         # First question
         print("Question 1:")
@@ -72,7 +73,7 @@ class Transformer:
             max_tokens=1000, 
             temperature=0.0,
             messages=[
-                {"role": "system", "content": prompt1},
+                {"role": "system", "content": root_prompt},
                 {"role": "user","content": "Here is part 1 of 2 of the CSV-formatted MIDI data: " + csv1}
             ]
         )
@@ -98,7 +99,7 @@ class Transformer:
         messages = [
             {
                 "role": "system",
-                "content": prompt1,
+                "content": root_prompt,
             },     
             {   
                 "role": "user",
@@ -134,7 +135,7 @@ class Transformer:
    
         ]
 
-        client = OpenAI(api_key=self.API_KEY, base_url="https://api.perplexity.ai")
+        client = OpenAI(api_key=self.PPLX_KEY, base_url="https://api.perplexity.ai")
 
         ml_model = ["sonar-medium-online",
                 "mixtral-8x7b-instruct",

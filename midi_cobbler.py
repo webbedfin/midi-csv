@@ -5,7 +5,7 @@ midi_cobbler.py
 - loopback test .mid to .mid
 - GPT analysis mode
 
-2024 Chris Derry & ChatGPT
+2024 Chris Derry
 """
 
 import sys
