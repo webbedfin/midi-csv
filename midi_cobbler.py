@@ -16,7 +16,7 @@ from converter import Converter
 from plotter import Plotter
 from transformer import Transformer
 
-VERSION = '0.1.0'
+VERSION = '0.2.0'
 
 parser = argparse.ArgumentParser(
     description="MidiCobbler: A MIDI file conversion and ML analysis tool.")
@@ -50,10 +50,10 @@ try:
         conv.csv_to_midi_transpose()
     elif args.mode == "loop":
         conv.midi_loopback()
-    elif args.mode == "xform":
+    elif args.mode == "pplx":
         Transformer().pplx_process(conv.midi_to_csv(), note_counts, chord_counts)
-        #midi_csv = conv.midi_to_csv()
-        #TransformerSimple().pplx_process(midi_csv)
+    elif args.mode == "claude":
+        Transformer().claude_process(conv.midi_to_csv(), note_counts, chord_counts)
     else:
         print("Invalid mode")
         sys.exit(1)
